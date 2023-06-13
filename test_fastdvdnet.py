@@ -99,32 +99,34 @@ def test_fastdvdnet(**args):
 		seq = torch.from_numpy(seq).to(device)
 		seq_time = time.time()
 
+		
+
 		# Add noise
-		noise = torch.empty_like(seq).normal_(mean=0, std=args['noise_sigma']).to(device)
-		seqn = seq + noise
+		# noise = torch.empty_like(seq).normal_(mean=0, std=args['noise_sigma']).to(device)
+		# seqn = seq + noise
 		noisestd = torch.FloatTensor([args['noise_sigma']]).to(device)
 
-		denframes = denoise_seq_fastdvdnet(seq=seqn,\
+		denframes = denoise_seq_fastdvdnet(seq=seq,\
 										noise_std=noisestd,\
 										temp_psz=NUM_IN_FR_EXT,\
 										model_temporal=model_temp)
 
 	# Compute PSNR and log it
 	stop_time = time.time()
-	psnr = batch_psnr(denframes, seq, 1.)
-	psnr_noisy = batch_psnr(seqn.squeeze(), seq, 1.)
+	# psnr = batch_psnr(denframes, seq, 1.)
+	# psnr_noisy = batch_psnr(seqn.squeeze(), seq, 1.)
 	loadtime = (seq_time - start_time)
 	runtime = (stop_time - seq_time)
 	seq_length = seq.size()[0]
 	logger.info("Finished denoising {}".format(args['test_path']))
 	logger.info("\tDenoised {} frames in {:.3f}s, loaded seq in {:.3f}s".\
 				 format(seq_length, runtime, loadtime))
-	logger.info("\tPSNR noisy {:.4f}dB, PSNR result {:.4f}dB".format(psnr_noisy, psnr))
+	# logger.info("\tPSNR noisy {:.4f}dB, PSNR result {:.4f}dB".format(psnr_noisy, psnr))
 
 	# Save outputs
 	if not args['dont_save_results']:
 		# Save sequence
-		save_out_seq(seqn, denframes, args['save_path'], \
+		save_out_seq(seq, denframes, args['save_path'], \
 					   int(args['noise_sigma']*255), args['suffix'], args['save_noisy'])
 
 	# close logger
